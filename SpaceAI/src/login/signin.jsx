@@ -1,92 +1,66 @@
-// src/SignIn.jsx
-import React, { useEffect, useState } from "react";
-import { auth, provider } from "./config"; // Make sure to import auth and provider
-import { signInWithPopup } from "firebase/auth";
+import React, { useState } from "react";
+import { auth, db } from "./config"; // Import Firestore instance
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore"; // Firestore functions
 
-function SignIn() {
-  const [value, setValue] = useState('');
+function SignUp() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
-  const handleClick = () => {
-    signInWithPopup(auth, provider)
-      .then((data) => {
-        setValue(data.user.email);
-        localStorage.setItem("email", data.user.email);
-      })
-      .catch((error) => {
-        console.error("Error signing in with Google:", error);
+  const handleSignUp = async () => {
+    setError("");
+    setMessage("");
+
+    try {
+      // Create a new user with email and password
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Save user data to Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        name: name,
+        email: user.email,
+        createdAt: new Date().toISOString(), // Save timestamp
       });
-  };
 
-  useEffect(() => {
-    const storedEmail = localStorage.getItem('email');
-    if (storedEmail) {
-      setValue(storedEmail);
+      // Confirmation message
+      setMessage(`Welcome, ${name}! Your account has been created.`);
+    } catch (error) {
+      setError(`Error: ${error.message}`);
     }
-  }, []); // Only run on component mount
+  };
 
   return (
     <div>
-      {value ? (
-        <span>Welcome, {value}</span> // Replace Home with a welcome message or similar
-      ) : (
-        <button onClick={handleClick}>Sign in With Google</button>
-      )}
+      <h2>Sign Up</h2>
+      <input
+        type="text"
+        placeholder="Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button onClick={handleSignUp}>Sign Up</button>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      {message && <p style={{ color: "green" }}>{message}</p>}
     </div>
   );
 }
 
-export default SignIn;
-
-
-
-// src/SignIn.jsx
-// import React, { useState } from "react";
-// import { auth } from "./config"; // Import the auth instance from your config
-// import { createUserWithEmailAndPassword } from "firebase/auth";
-
-// function SignIn() {
-//   const [email, setEmail] = useState('');
-//   const [password, setPassword] = useState('');
-//   const [error, setError] = useState('');
-//   const [message, setMessage] = useState('');
-
-//   const handleSignUp = () => {
-//     setError('');
-//     setMessage('');
-
-//     // Create a new user with email and password
-//     createUserWithEmailAndPassword(auth, email, password)
-//       .then((userCredential) => {
-//         // Signed up successfully
-//         setMessage(`Welcome, ${userCredential.user.email}!`);
-//       })
-//       .catch((error) => {
-//         // Handle errors here
-//         setError(`Error: ${error.message}`);
-//       });
-//   };
-
-//   return (
-//     <div>
-//       <h2>Sign Up</h2>
-//       <input
-//         type="email"
-//         placeholder="Email"
-//         value={email}
-//         onChange={(e) => setEmail(e.target.value)}
-//       />
-//       <input
-//         type="password"
-//         placeholder="Password"
-//         value={password}
-//         onChange={(e) => setPassword(e.target.value)}
-//       />
-//       <button onClick={handleSignUp}>Sign Up</button>
-
-//       {error && <p style={{ color: 'red' }}>{error}</p>}
-//       {message && <p style={{ color: 'green' }}>{message}</p>}
-//     </div>
-//   );
-// }
-
-// export default SignIn;
+export default SignUp;
