@@ -1,66 +1,64 @@
 import React, { useState } from "react";
-import { auth, db } from "./config"; // Import Firestore instance
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore"; // Firestore functions
+import { auth, provider, db } from "./config"; // Import Firestore instance
+import { signInWithPopup } from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore"; // Firestore functions
 
-function SignUp() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+function SignIn() {
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
+  const [user, setUser] = useState(null);
 
-  const handleSignUp = async () => {
+  const handleGoogleSignIn = async () => {
     setError("");
-    setMessage("");
 
     try {
-      // Create a new user with email and password
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+      // Sign in with Google
+      const result = await signInWithPopup(auth, provider);
+      const signedInUser = result.user; // User object from the result
 
       // Save user data to Firestore
-      await setDoc(doc(db, "users", user.uid), {
-        uid: user.uid,
-        name: name,
-        email: user.email,
-        createdAt: new Date().toISOString(), // Save timestamp
-      });
+      const userRef = doc(db, "users", signedInUser.uid);
+      const userSnapshot = await getDoc(userRef);
 
-      // Confirmation message
-      setMessage(`Welcome, ${name}! Your account has been created.`);
-    } catch (error) {
-      setError(`Error: ${error.message}`);
+      if (!userSnapshot.exists()) {
+        // Create a new user document if it doesn't exist
+        await setDoc(userRef, {
+          uid: signedInUser.uid,
+          displayName: signedInUser.displayName,
+          email: signedInUser.email,
+          photoURL: signedInUser.photoURL,
+          createdAt: new Date().toISOString(),
+        });
+        console.log("New user document created in Firestore.");
+      } else {
+        console.log("User already exists in Firestore.");
+      }
+
+      setUser(signedInUser); // Update the user state to reflect the signed-in user
+    } catch (err) {
+      console.error("Error during sign-in:", err);
+      setError("Failed to sign in. Please try again.");
     }
   };
 
   return (
     <div>
-      <h2>Sign Up</h2>
-      <input
-        type="text"
-        placeholder="Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button onClick={handleSignUp}>Sign Up</button>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {message && <p style={{ color: "green" }}>{message}</p>}
+      {!user ? (
+        <>
+          <button onClick={handleGoogleSignIn}>Sign in with Google</button>
+          {error && <p style={{ color: "red" }}>{error}</p>}
+        </>
+      ) : (
+        <div>
+          <p>Welcome, {user.displayName}!</p>
+          <img
+            src={user.photoURL}
+            alt="User avatar"
+            style={{ width: "50px", borderRadius: "50%" }}
+          />
+        </div>
+      )}
     </div>
   );
 }
 
-export default SignUp;
+export default SignIn;
