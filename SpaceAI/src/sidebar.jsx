@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { fetchUserQueriesWithDates } from "../utils/fetchUserQueriesWithDates"; // Import the fetch function
+import { fetchUserQueriesWithDates } from "./pastqueries/pastqueries";
 
 function SideBar() {
   const [queries, setQueries] = useState([]);
