@@ -67,11 +67,17 @@ function QueryPage() {
   };
 
   return (
-    <>
-      <div className="container">
-        <div className="top-right">
-          <SignIn />
-        </div>
+    <div className="main-container">
+      {/* Sign-in Section */}
+      <div className="top-right">
+        <SignIn />
+      </div>
+
+      {/* Sidebar */}
+      <SideBar /> 
+
+      {/* Input and Response Section */}
+      <div className="content-container">
         <div className="input-container">
           <input
             id="QueryInput"
@@ -82,34 +88,35 @@ function QueryPage() {
           />
           <button id="qbutton" onClick={handleQuery}></button>
         </div>
-      </div>
-      <SideBar /> {/* Include SideBar */}
-      {data && (
-        <div className="response-container">
-          {error && <p style={{ color: "red" }}>{error}</p>}
-          <div id="ResponseDiv">
-            <h3>Response:</h3>
-            <p id="Response">{data}</p>
-            {source && (
-              <div id="SourcesDiv">
-                <h4>Sources:</h4>
-                <ul>
-                  {source.map((src, index) => (
-                    <li key={index}>{src}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {probab !== null && (
-              <div id="ProbabDiv">
-                <h4>Confidence Score:</h4>
-                <p>{probab.toFixed(4)}</p>
-              </div>
-            )}
+
+        {/* Response Section */}
+        {data && (
+          <div className="response-container">
+            {error && <p style={{ color: "red" }}>{error}</p>}
+            <div id="ResponseDiv">
+              <h3>Response:</h3>
+              <p id="Response">{data}</p>
+              {source && (
+                <div id="SourcesDiv">
+                  <h4>Sources:</h4>
+                  <ul>
+                    {source.map((src, index) => (
+                      <li key={index}>{src}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {probab !== null && (
+                <div id="ProbabDiv">
+                  <h4>Confidence Score:</h4>
+                  <p>{probab.toFixed(4)}</p>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
-    </>
+        )}
+      </div>
+    </div>
   );
 }
 
