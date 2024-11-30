@@ -24,10 +24,25 @@ export const fetchUserQueriesWithDates = async () => {
       response: data.response,
       probabilities: data.probabilities || null,
       timestamp: data.timestamp,
-      formattedDate: new Date(data.timestamp).toLocaleString(), // Add formatted date
+      formattedDate: data.timestamp?.toDate
+        ? data.timestamp.toDate().toLocaleString() // Firestore Timestamp to JS Date
+        : new Date(data.timestamp).toLocaleString(), // Fallback if timestamp is already a JS Date
     };
   });
 };
+
+// export const fetchUserQueryResults = async () => {
+//     const user = auth.currentUser;
+
+//     if (!user) {
+//         throw new Error("User is not authenticated.");
+
+//     }
+//     const userQueriesCollection = collection(db,`users/${user.uid}/queries`);
+//     const querySnapshot = await getDocs(userQueriesCollection);
+
+
+// }
 
 export default function PastQueries() {
   const [queries, setQueries] = useState([]);
@@ -35,12 +50,15 @@ export default function PastQueries() {
   const [isSignedIn, setIsSignedIn] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         setIsSignedIn(true);
-        fetchUserQueriesWithDates()
-          .then(setQueries)
-          .catch((err) => setError(err.message));
+        try {
+          const userQueries = await fetchUserQueriesWithDates();
+          setQueries(userQueries);
+        } catch (err) {
+          setError(err.message);
+        }
       } else {
         setIsSignedIn(false);
         setQueries([]);

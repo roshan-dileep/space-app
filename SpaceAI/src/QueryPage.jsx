@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import $ from "jquery";
 import "./App.css";
-import SignIn from "./login/signin"; // Import the SignIn component
+import SignIn from "./login/signin";
 import SideBar from "./sidebar";
 import { auth, db } from "./login/config"; // Firebase auth and Firestore
 import { doc, collection, addDoc, setDoc } from "firebase/firestore";
 
-function QueryPage() {
-  const [query, setQuery] = useState("");
+const QueryPage = ({ initialQuery = "" }) => {
+  const [query, setQuery] = useState(initialQuery);
   const [data, setData] = useState(null);
   const [source, setSources] = useState(null);
   const [error, setError] = useState(null);
@@ -66,17 +66,20 @@ function QueryPage() {
     });
   };
 
+  // Run query automatically if `initialQuery` is provided
+  useEffect(() => {
+    if (initialQuery) {
+      handleQuery();
+    }
+  }, [initialQuery]); // Dependency ensures this only runs when `initialQuery` changes
+
   return (
     <div className="main-container">
-      {/* Sign-in Section */}
       <div className="top-right">
         <SignIn />
       </div>
+      <SideBar param={setQuery} /> {/* Pass setQuery to SideBar for updating query */}
 
-      {/* Sidebar */}
-      <SideBar /> 
-
-      {/* Input and Response Section */}
       <div className="content-container">
         <div className="input-container">
           <input
@@ -89,7 +92,6 @@ function QueryPage() {
           <button id="qbutton" onClick={handleQuery}></button>
         </div>
 
-        {/* Response Section */}
         {data && (
           <div className="response-container">
             {error && <p style={{ color: "red" }}>{error}</p>}
@@ -118,6 +120,6 @@ function QueryPage() {
       </div>
     </div>
   );
-}
+};
 
 export default QueryPage;
