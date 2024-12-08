@@ -28,8 +28,8 @@ const SideBar = ({ param }) => {
     return () => unsubscribe();
   }, []);
 
-  const handleButtonClick = (query) => {
-    param(query); // Call the param function passed via props to update the query
+  const handleButtonClick = (queryData) => {
+    param(queryData.query, queryData.response); // Pass both query and response
   };
 
   return (
@@ -42,10 +42,10 @@ const SideBar = ({ param }) => {
         <p>No past queries available.</p>
       ) : (
         <ul style={{ listStyleType: "none", padding: "0" }}>
-          {queries.map((query) => (
-            <li key={query.id} style={{ marginBottom: "10px" }}>
-              <strong>{query.query}</strong> <br />
-              <small>{query.formattedDate}</small> <br />
+          {queries.map((queryData) => (
+            <li key={queryData.id} style={{ marginBottom: "10px" }}>
+              <strong>{queryData.query}</strong> <br />
+              <small>{queryData.formattedDate}</small> <br />
               <button
                 style={{
                   marginTop: "5px",
@@ -56,7 +56,7 @@ const SideBar = ({ param }) => {
                   border: "none",
                   cursor: "pointer",
                 }}
-                onClick={() => handleButtonClick(query.query)} // Pass query.query for button click
+                onClick={() => handleButtonClick(queryData)} // Pass query and response
               >
                 Select
               </button>

@@ -24,25 +24,10 @@ export const fetchUserQueriesWithDates = async () => {
       response: data.response,
       probabilities: data.probabilities || null,
       timestamp: data.timestamp,
-      formattedDate: data.timestamp?.toDate
-        ? data.timestamp.toDate().toLocaleString() // Firestore Timestamp to JS Date
-        : new Date(data.timestamp).toLocaleString(), // Fallback if timestamp is already a JS Date
+      formattedDate: new Date(data.timestamp).toLocaleString(), // Add formatted date
     };
   });
 };
-
-// export const fetchUserQueryResults = async () => {
-//     const user = auth.currentUser;
-
-//     if (!user) {
-//         throw new Error("User is not authenticated.");
-
-//     }
-//     const userQueriesCollection = collection(db,`users/${user.uid}/queries`);
-//     const querySnapshot = await getDocs(userQueriesCollection);
-
-
-// }
 
 export default function PastQueries() {
   const [queries, setQueries] = useState([]);
@@ -50,32 +35,51 @@ export default function PastQueries() {
   const [isSignedIn, setIsSignedIn] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         setIsSignedIn(true);
-        try {
-          const userQueries = await fetchUserQueriesWithDates();
-          setQueries(userQueries);
-        } catch (err) {
-          setError(err.message);
-        }
+        fetchUserQueriesWithDates()
+          .then(setQueries)
+          .catch((err) => setError(err.message));
       } else {
         setIsSignedIn(false);
         setQueries([]);
       }
     });
 
+    // Clean up the listener on unmount
     return () => unsubscribe();
   }, []);
 
+  const fetchQueries = async (user) => {
+    try {
+      // Reference the "queries" subcollection for the authenticated user
+      const userQueriesCollection = collection(db, `users/${user.uid}/queries`);
+
+      // Fetch all documents from the "queries" subcollection
+      const querySnapshot = await getDocs(userQueriesCollection);
+
+      // Extract data from documents and update state
+      const queriesData = querySnapshot.docs.map((doc) => ({
+        id: doc.id, // Include document ID if needed
+        ...doc.data(), // Spread the document data
+      }));
+
+      setQueries(queriesData); // Update the state with fetched queries
+    } catch (err) {
+      console.error("Error fetching past queries:", err);
+      setError("An error occurred while fetching your past queries.");
+    }
+  };
+
   return (
-    <div style={{ margin: "20px" }}>
+    <div>
       <h2>Past Queries</h2>
 
       {!isSignedIn && (
         <div>
           <p>You must be signed in to view past queries.</p>
-          <SignIn />
+          <SignIn /> {/* Render the SignIn component */}
         </div>
       )}
 
@@ -88,19 +92,10 @@ export default function PastQueries() {
             <ul>
               {queries.map((query) => (
                 <li key={query.id}>
-                  <p>
-                    <strong>Query:</strong> {query.query}
-                  </p>
-                  <p>
-                    <strong>Response:</strong> {query.response}
-                  </p>
-                  <p>
-                    <strong>Confidence Score:</strong>{" "}
-                    {query.probabilities?.toFixed(4) || "N/A"}
-                  </p>
-                  <p>
-                    <strong>Date:</strong> {query.formattedDate}
-                  </p>
+                  <strong>Query:</strong> {query.query} <br />
+                  <strong>Response:</strong> {query.response} <br />
+                  <strong>Confidence Score:</strong> {query.probabilities?.toFixed(4) || "N/A"} <br />
+                  <strong>Timestamp:</strong> {new Date(query.timestamp).toLocaleString()}
                 </li>
               ))}
             </ul>

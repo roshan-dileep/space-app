@@ -8,6 +8,7 @@ def querydata(query_text):
     import os
     import openai
     import numpy as np
+   
 
     np.float_ = np.float64
 
@@ -22,13 +23,11 @@ def querydata(query_text):
 
     Answer the question based on the above context: {question}
     """
-    
-    # Load environment variables from the "keys.env" file
-    load_dotenv(Path("keys.env"))
+    load_dotenv(Path(".env"))
 
     openai_api_key = os.getenv("OPENAI_API_KEY")
     if openai_api_key is None:
-        raise ValueError("OpenAI API key not found. Make sure it's set in keys.env.")
+        raise ValueError("OpenAI API key not found. Make sure it's set in APIKEY.env.")
 
     openai.api_key = openai_api_key
 
@@ -42,17 +41,23 @@ def querydata(query_text):
     context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
     prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
     prompt = prompt_template.format(context=context_text, question=query_text)
+    
 
     model = ChatOpenAI(model="gpt-4o-mini").bind(logprobs=True)
     response_text = model.invoke(prompt)
     print(response_text)
     
+    
+    
     sources = [doc.metadata.get("source", None) for doc, _score in results]
+    
 
+    
     return {
         "response": response_text,
         "sources": sources,
+        # "logprobs": logprobs
+        
     }
 
-# Example usage
 querydata("What is time")

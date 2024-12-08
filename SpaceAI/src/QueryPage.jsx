@@ -8,34 +8,14 @@ import { doc, collection, addDoc, setDoc } from "firebase/firestore";
 
 const QueryPage = ({ initialQuery = "" }) => {
   const [query, setQuery] = useState(initialQuery);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState(null); // For response
   const [source, setSources] = useState(null);
   const [error, setError] = useState(null);
   const [probab, setProb] = useState(null);
 
-  const saveQueryToFirestore = async (query, response, sources, probabilities) => {
-    const user = auth.currentUser;
-
-    if (!user) {
-      setError("You must be signed in to save your queries.");
-      return;
-    }
-
-    try {
-      const userDocRef = doc(db, "users", user.uid);
-      await setDoc(userDocRef, { email: user.email }, { merge: true });
-
-      const userQueriesCollection = collection(userDocRef, "queries");
-      await addDoc(userQueriesCollection, {
-        query,
-        response,
-        sources,
-        probabilities,
-        timestamp: new Date().toISOString(),
-      });
-    } catch (err) {
-      setError("An error occurred while saving your query.");
-    }
+  const updateQueryAndResponse = (newQuery, newResponse) => {
+    setQuery(newQuery); // Update query input value
+    setData(newResponse); // Update response paragraph value
   };
 
   const handleQuery = () => {
@@ -78,7 +58,7 @@ const QueryPage = ({ initialQuery = "" }) => {
       <div className="top-right">
         <SignIn />
       </div>
-      <SideBar param={setQuery} /> {/* Pass setQuery to SideBar for updating query */}
+      <SideBar param={updateQueryAndResponse} /> {/* Pass function to SideBar */}
 
       <div className="content-container">
         <div className="input-container">
@@ -88,13 +68,18 @@ const QueryPage = ({ initialQuery = "" }) => {
             value={query}
             placeholder="Query"
             onChange={(e) => setQuery(e.target.value)}
+            className="bg-white rounded-full border-0 text-black h-6 w-[200px] text-xl"
           />
-          <button id="qbutton" onClick={handleQuery}></button>
+          <button
+            id="qbutton"
+            onClick={handleQuery}
+            className="bg-white w-8 h-8 rounded-full bg-[url('image-removebg-preview.png')] bg-cover border-0 cursor-pointer"
+          ></button>
         </div>
 
         {data && (
           <div className="response-container">
-            {error && <p style={{ color: "red" }}>{error}</p>}
+            {error && <p className="text-red-500">{error}</p>}
             <div id="ResponseDiv">
               <h3>Response:</h3>
               <p id="Response">{data}</p>
