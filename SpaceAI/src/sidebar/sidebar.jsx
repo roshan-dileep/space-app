@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { auth } from "./login/config";
-import { fetchUserQueriesWithDates } from "./pastqueries/pastqueries";
-
+import { auth } from "../login/config";
+import { fetchUserQueriesWithDates } from "../pastqueries/pastqueries";
+import "./sidebar.css";
 const SideBar = ({ param }) => {
   const [queries, setQueries] = useState([]);
   const [error, setError] = useState(null);

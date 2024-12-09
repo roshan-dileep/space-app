@@ -1,0 +1,18 @@
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    background-color: rgb(15, 15, 15); /* Semi-transparent dark background */
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px; /* Increased radius for better visibility */
+    width: 20%;
+    height: 100vh; /* Full viewport height */
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    overflow: hidden; /* Prevents child elements from overflowing the radius */
+    padding-top: 20px;
+    box-sizing: border-box;
+}

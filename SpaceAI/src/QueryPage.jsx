@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import $ from "jquery";
 import "./App.css";
 import SignIn from "./login/signin";
-import SideBar from "./sidebar";
+import SideBar from "./sidebar/sidebar";
 import { auth, db } from "./login/config"; // Firebase auth and Firestore
 import { doc, collection, addDoc, setDoc } from "firebase/firestore";
 
