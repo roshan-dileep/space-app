@@ -3,16 +3,81 @@
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
-    background-color: rgb(15, 15, 15); /* Semi-transparent dark background */
-    border-top-right-radius: 50px;
-    border-bottom-right-radius: 50px; /* Increased radius for better visibility */
-    width: 20%;
+    background: linear-gradient(145deg, rgba(30, 30, 30, 0.95), rgba(45, 45, 45, 0.95)); /* Gradient dark background */
+    border-top-right-radius: 25px; /* Reduced radius for a sleeker look */
+    border-bottom-right-radius: 25px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); /* Added subtle shadow for depth */
+    width: 260px; /* Set width explicitly for consistency */
+    max-width: 90%; /* Ensure responsiveness on smaller screens */
     height: 100vh; /* Full viewport height */
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 1;
-    overflow: hidden; /* Prevents child elements from overflowing the radius */
-    padding-top: 20px;
+    z-index: 10; /* Ensure it's always above other elements */
+    overflow-y: auto; /* Allow scrolling if content overflows vertically */
+    overflow-x: hidden; /* Prevent horizontal overflow */
+    padding: 20px 15px; /* Balanced padding for aesthetics */
     box-sizing: border-box;
+    transition: transform 0.3s ease-in-out; /* Smooth sliding effect */
+    transform: translateX(0); /* Sidebar open by default */
+}
+
+/* When the sidebar is closed */
+.sidebar.closed {
+    transform: translateX(-100%); /* Slide out completely */
+}
+
+/* Add hover effect to enhance interactivity */
+.sidebar:hover {
+    background: linear-gradient(145deg, rgba(45, 45, 45, 0.95), rgba(60, 60, 60, 0.95));
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.6); /* Slightly stronger shadow on hover */
+}
+
+/* Adjust scrollbar for better UX */
+.sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 100, 100, 0.8);
+    border-radius: 10px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(120, 120, 120, 0.9);
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Text and content inside the sidebar */
+.sidebar h3 {
+    color: #ffffff;
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    padding-left: 10px;
+    text-transform: uppercase;
+}
+
+.sidebar p {
+    color: rgba(255, 255, 255, 0.8);
+    margin: 5px 0;
+    padding-left: 10px;
+}
+
+.sidebar button {
+    background-color: #1e90ff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin-top: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 0.9em;
+}
+
+.sidebar button:hover {
+    background-color: #0073e6; /* Slightly darker blue on hover */
 }

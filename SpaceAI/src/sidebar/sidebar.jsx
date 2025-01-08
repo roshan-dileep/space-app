@@ -2,15 +2,18 @@ import React, { useState, useEffect } from "react";
 import { auth } from "../login/config";
 import { fetchUserQueriesWithDates } from "../pastqueries/pastqueries";
 import "./sidebar.css";
+
 const SideBar = ({ param }) => {
   const [queries, setQueries] = useState([]);
   const [error, setError] = useState(null);
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // For loading state
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         setIsSignedIn(true);
+        setIsLoading(true); // Start loading
         try {
           const queriesWithDates = await fetchUserQueriesWithDates();
           setQueries(queriesWithDates);
@@ -18,6 +21,8 @@ const SideBar = ({ param }) => {
         } catch (err) {
           setError("Error fetching past queries.");
           console.error("Error fetching data:", err);
+        } finally {
+          setIsLoading(false); // Stop loading
         }
       } else {
         setIsSignedIn(false);
@@ -33,29 +38,24 @@ const SideBar = ({ param }) => {
   };
 
   return (
-    <div className="sidebar" style={{ padding: "10px" }}>
+    <div className="sidebar">
       <h3>Past Queries</h3>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="error-message">{error}</p>}
       {!isSignedIn ? (
         <p>Please sign in to view your past queries.</p>
+      ) : isLoading ? (
+        <p>Loading past queries...</p>
       ) : queries.length === 0 ? (
         <p>No past queries available.</p>
       ) : (
-        <ul style={{ listStyleType: "none", padding: "0" }}>
+        <ul className="query-list">
           {queries.map((queryData) => (
-            <li key={queryData.id} style={{ marginBottom: "10px" }}>
+            <li key={queryData.id} className="query-item">
               <strong>{queryData.query}</strong> <br />
               <small>{queryData.formattedDate}</small> <br />
               <button
-                style={{
-                  marginTop: "5px",
-                  padding: "5px 10px",
-                  borderRadius: "5px",
-                  backgroundColor: "#646cff",
-                  color: "white",
-                  border: "none",
-                  cursor: "pointer",
-                }}
+                className="select-button"
+                aria-label={`Select query: ${queryData.query}`}
                 onClick={() => handleButtonClick(queryData)} // Pass query and response
               >
                 Select

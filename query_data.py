@@ -26,6 +26,7 @@ def querydata(query_text):
     load_dotenv(Path(".env"))
 
     openai_api_key = os.getenv("OPENAI_API_KEY")
+    print(f"OpenAI API Key: {openai_api_key}")
     if openai_api_key is None:
         raise ValueError("OpenAI API key not found. Make sure it's set in APIKEY.env.")
 

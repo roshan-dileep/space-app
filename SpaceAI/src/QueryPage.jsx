@@ -12,6 +12,7 @@ const QueryPage = ({ initialQuery = "" }) => {
   const [source, setSources] = useState(null);
   const [error, setError] = useState(null);
   const [probab, setProb] = useState(null);
+  const [showSidebar, setShowSidebar] = useState(false); // For toggling SideBar visibility
 
   const updateQueryAndResponse = (newQuery, newResponse) => {
     setQuery(newQuery); // Update query input value
@@ -54,37 +55,72 @@ const QueryPage = ({ initialQuery = "" }) => {
   }, [initialQuery]); // Dependency ensures this only runs when `initialQuery` changes
 
   return (
-    <div className="main-container">
-      <div className="top-right">
+    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+      <div style={{ position: "absolute", top: "10px", right: "10px" }}>
         <SignIn />
       </div>
-      <SideBar param={updateQueryAndResponse} /> {/* Pass function to SideBar */}
 
-      <div className="content-container">
-        <div className="input-container">
+      {/* Button to toggle SideBar visibility */}
+      <button
+        onClick={() => setShowSidebar((prev) => !prev)}
+        style={{
+          backgroundColor: "#1E90FF",
+          color: "white",
+          padding: "10px 20px",
+          border: "none",
+          borderRadius: "5px",
+          cursor: "pointer",
+        }}
+      >
+        {showSidebar ? "Hide Sidebar" : "Show Sidebar"}
+      </button>
+
+      {/* Conditionally render SideBar */}
+      {showSidebar && <SideBar param={updateQueryAndResponse} />}
+
+      <div style={{ marginTop: "20px" }}>
+        <div style={{ marginBottom: "20px" }}>
           <input
             id="QueryInput"
             type="text"
             value={query}
             placeholder="Query"
             onChange={(e) => setQuery(e.target.value)}
-            className="bg-white rounded-full border-0 text-black h-6 w-[200px] text-xl"
+            style={{
+              padding: "10px",
+              borderRadius: "5px",
+              border: "1px solid #ccc",
+              width: "200px",
+            }}
           />
           <button
             id="qbutton"
             onClick={handleQuery}
-            className="bg-white w-8 h-8 rounded-full bg-[url('image-removebg-preview.png')] bg-cover border-0 cursor-pointer"
+            style={{
+              marginLeft: "10px",
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              background: "url('image-removebg-preview.png') no-repeat center center",
+              backgroundSize: "cover",
+              border: "none",
+              cursor: "pointer",
+            }}
           ></button>
         </div>
 
         {data && (
-          <div className="response-container">
-            {error && <p className="text-red-500">{error}</p>}
+          <div>
+            {error && (
+              <p style={{ color: "red", fontWeight: "bold" }}>{error}</p>
+            )}
             <div id="ResponseDiv">
-              <h3>Response:</h3>
-              <p id="Response">{data}</p>
+              <h3 style={{ marginBottom: "10px" }}>Response:</h3>
+              <p id="Response" style={{ padding: "10px", backgroundColor: "#f9f9f9", borderRadius: "5px" }}>
+                {data}
+              </p>
               {source && (
-                <div id="SourcesDiv">
+                <div id="SourcesDiv" style={{ marginTop: "20px" }}>
                   <h4>Sources:</h4>
                   <ul>
                     {source.map((src, index) => (
@@ -94,7 +130,7 @@ const QueryPage = ({ initialQuery = "" }) => {
                 </div>
               )}
               {probab !== null && (
-                <div id="ProbabDiv">
+                <div id="ProbabDiv" style={{ marginTop: "20px" }}>
                   <h4>Confidence Score:</h4>
                   <p>{probab.toFixed(4)}</p>
                 </div>
